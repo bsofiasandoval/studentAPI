@@ -3,44 +3,46 @@ const DBService = require('../dbService');
 class FakeService extends DBService {
   constructor() {
     super();
-    this.customers = new Map();
-    // Initialize with 5 dummy customers
-    const dummyCustomers = [
-      { id: '1', name: 'John Doe', email: 'john.doe@example.com' },
-      { id: '2', name: 'Jane Smith', email: 'jane.smith@example.com' },
-      { id: '3', name: 'Bob Johnson', email: 'bob.johnson@example.com' },
-      { id: '4', name: 'Alice Brown', email: 'alice.brown@example.com' },
-      { id: '5', name: 'Charlie Wilson', email: 'charlie.wilson@example.com' },
+    this.students = new Map();
+    const dummyStudents = [
+      { matricula: '1', nombre: 'John Doe', calificacion: 70, deuda: 0},
+      { matricula: '2', nombre: 'Jane Smith', calificacion: 0, deuda: 0},
+      { matricula: '3', nombre: 'Bob Johnson', calificacion: 70, deuda: 100},
+      { matricula: '4', nombre: 'Alice Brown', calificacion: 0, deuda: 100},
     ];
 
-    dummyCustomers.forEach((customer) => {
-      this.customers.set(customer.id, customer);
+    dummyStudents.forEach((student) => {
+        this.students.set(student.matricula, student);
     });
   }
 
-  async getAllCustomers() {
-    return Array.from(this.customers.values());
-  }
+  async getAllStudents() {
+    const result = []
+    this.students.forEach((student, matricula) => {
+        let studentStatus;
 
-  async getCustomerById(id) {
-    return this.customers.get(id);
-  }
+        if (student.calificacion >= 70) {
+            if (student.deuda <= 0) {
+                studentStatus = "Aprobado"
+            } else {
+                studentStatus = "Reestructura"
+            }
+        } else {
+            if (student.deuda <= 0) {
+                studentStatus = "Pendiente"
+            } else {
+                studentStatus = "Expulsado"
+            }
+        }
 
-  async createCustomer(name, email) {
-    const id = Date.now().toString();
-    const customer = { id, name, email };
-    this.customers.set(id, customer);
-    return customer;
-  }
+        result.push({
+            "matricula": matricula,
+            "nombre": student.name,
+            "estatus": studentStatus
+        })
+    });
 
-  async updateCustomer(id, name, email) {
-    const customer = { id, name, email };
-    this.customers.set(id, customer);
-    return customer;
-  }
-
-  async deleteCustomer(id) {
-    this.customers.delete(id);
+    return result;
   }
 }
 
